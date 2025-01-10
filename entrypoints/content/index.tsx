@@ -5,12 +5,44 @@ import "@/assets/globals.css";
 import "@/node_modules/sonner/dist/styles.css";
 
 export default defineContentScript({
-  matches: ["*://*/*"],
+  matches: ["<all_urls>"],
   cssInjectionMode: "ui",
 
   async main(ctx) {
+    console.log("[content/index.tsx] Content script loaded!");
+
     const ui = await createUi(ctx);
-    ui.mount();
+    let isMounted = false;
+
+    chrome.runtime.onMessage.addListener(async function (
+      request,
+      sender,
+      sendResponse
+    ) {
+      console.log(request, "request");
+
+      if (request.type === "START") {
+        if (isMounted) {
+          console.log("[content/index.tsx] App is already mounted");
+          return;
+        }
+
+        console.log("[content/index.tsx] Mounting app", ui);
+        ui.mount();
+        isMounted = true;
+      }
+
+      if (request.type === "CLOSE_APP") {
+        if (!isMounted) {
+          console.log("[content/index.tsx] App is not mounted");
+          return;
+        }
+
+        console.log("[content/index.tsx] Unmounting app");
+        ui.remove();
+        isMounted = false;
+      }
+    });
   },
 });
 

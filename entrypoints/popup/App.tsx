@@ -1,7 +1,21 @@
-import { useState } from 'react';
-import reactLogo from '@/assets/react.svg';
-import wxtLogo from '/wxt.svg';
-import './App.css';
+import { useState } from "react";
+import reactLogo from "@/assets/react.svg";
+import wxtLogo from "/wxt.svg";
+import "./App.css";
+import { Button } from "@/components/ui/button";
+
+const send = async () => {
+  const [tab] = await chrome.tabs.query({
+    active: true,
+    lastFocusedWindow: true,
+  });
+  console.log(tab);
+  const response = await chrome.tabs.sendMessage(tab.id!, {
+    type: "START",
+  });
+
+  console.log(response);
+};
 
 function App() {
   const [count, setCount] = useState(0);
@@ -28,6 +42,7 @@ function App() {
       <p className="read-the-docs">
         Click on the WXT and React logos to learn more
       </p>
+      <Button onClick={() => send()}>Open app</Button>
     </>
   );
 }
