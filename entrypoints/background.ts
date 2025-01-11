@@ -1,15 +1,4 @@
-const send = async (type: "START" | "CLOSE_APP") => {
-  const [tab] = await chrome.tabs.query({
-    active: true,
-    lastFocusedWindow: true,
-  });
-  console.log(tab);
-  const response = await chrome.tabs.sendMessage(tab.id!, {
-    type,
-  });
-
-  console.log(response);
-};
+import { Messages, sendMessageToContentScript } from "@/lib/messages";
 
 export default defineBackground(() => {
   console.log("Hello background!", { id: browser.runtime.id });
@@ -18,10 +7,14 @@ export default defineBackground(() => {
     console.log(`Command "${command}" triggered`);
     if (command === "open-app") {
       console.log("Running foo");
-      send("START");
+      sendMessageToContentScript({
+        type: Messages.OPEN_SIDEBAR,
+      });
     } else if (command === "close-app") {
       console.log("Running close");
-      send("CLOSE_APP");
+      sendMessageToContentScript({
+        type: Messages.CLOSE_SIDEBAR,
+      });
     }
   });
 });

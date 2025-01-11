@@ -12,47 +12,19 @@ export default defineContentScript({
     console.log("[content/index.tsx] Content script loaded!");
 
     const ui = await createUi(ctx);
-    let isMounted = false;
+    ui.mount();
 
-    chrome.runtime.onMessage.addListener(async function (
-      request,
-      sender,
-      sendResponse
-    ) {
-      console.log(request, "request");
-
-      if (request.type === "START") {
-        if (isMounted) {
-          console.log("[content/index.tsx] App is already mounted");
-          return;
-        }
-
-        console.log("[content/index.tsx] Mounting app", ui);
-        ui.mount();
-        isMounted = true;
-      }
-
-      if (request.type === "CLOSE_APP") {
-        if (!isMounted) {
-          console.log("[content/index.tsx] App is not mounted");
-          return;
-        }
-
-        console.log("[content/index.tsx] Unmounting app");
-        ui.remove();
-        isMounted = false;
-      }
-    });
+    console.log("[content/index.tsx] UI mounted!");
   },
 });
 
 function createUi(ctx: ContentScriptContext) {
   return createShadowRootUi(ctx, {
-    name: "tailwind-shadow-root-example",
+    name: "my-cool-app",
     position: "overlay",
     anchor: "body",
     append: "first",
-    onMount: (container, shadowRoot) => {
+    onMount: (_container, shadowRoot) => {
       const app = document.createElement("div");
       shadowRoot.append(app);
 
